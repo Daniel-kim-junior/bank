@@ -1,1 +1,12 @@
 /node_modules
+/dist
+/package
+*.env*
+npm-debug.log
+~*
+.DS_Store
+src/.DS_Store
+src/endpoints/workspace.code-workspace
+/application.zip
+.idea
+/package
