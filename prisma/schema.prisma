@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  userId      String    @id 
+  name        String
+  email       String
+  address     String
+  phoneNumber String
+  accounts    Account[]
+
+  @@map("users")
+}
+
+model Transaction {
+  id             Int      @id @default(autoincrement())
+  fromAccountId  String
+  toAccountId    String
+  amount         Float
+  currency       String
+  status         String
+  createdAt      DateTime @default(now())
+  idempotencyKey String   @unique
+  fromAccount    Account  @relation("FromTransactions", fields: [fromAccountId], references: [accountNumber])
+  toAccount      Account  @relation("ToTransactions", fields: [toAccountId], references: [accountNumber])
+
+  @@map("transactions")
+}
+
+model Account {
+  id            Int           @id @default(autoincrement())
+  userId        String
+  accountNumber String        @unique
+  accountType   String
+  balance       Float
+  currency      String
+  password      String        // 오타 수정: passowrd -> password
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  user          User          @relation(fields: [userId], references: [userId])
+  fromTransactions Transaction[] @relation("FromTransactions")
+  toTransactions  Transaction[] @relation("ToTransactions")
+
+  @@index([userId], name: "user_id_idx")
+  @@map("accounts")
+}
